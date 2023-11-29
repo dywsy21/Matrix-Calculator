@@ -1,5 +1,19 @@
 #include <bits/stdc++.h>
 
+using namespace std;
+    ostream& operator<<(ostream& s, vector<vector<double>> mat){
+        s << ">>";
+        for(int i = 0; i < mat.size(); i++){
+            if(i != 0) s << "  ";
+            for(int j = 0; j < mat[i].size(); j++){ 
+                s << mat[i][j] << ' ';
+            }
+            s << '\n';
+        }
+        return s;
+    }
+
+
 namespace matcalc{
     const double epsilon = 1e-8;
 
@@ -495,7 +509,7 @@ namespace matcalc{
                         operands.push(power_of_n(matrix, pow));
                     }
                 }
-            } else if (s[i] == 'd') {
+            } else if (s[i] == 'd' || s[i] == 'r' || s[i] == 's' || s[i] == 't' || s[i] == 'i') {
                 if (i + 1 < s.size() && s[i+1] == '(') {
                     int j = i + 2;
                     int cnt = 1;
@@ -506,103 +520,48 @@ namespace matcalc{
                     }
                     std::string sub_s = s.substr(i+2, j-i-3);
                     std::vector<std::vector<double>> matrix = parse_and_calculate(sub_s, matrixs);
-                    double det_val = det(matrix);
-                    operands.push(std::vector<std::vector<double>>{{det_val}});
+
+                    double det_val = 0;
+                    int rank_val = 0;
+                    switch(s[i]){
+                        case 'd':   det_val = det(matrix); 
+                                    operands.push(std::vector<std::vector<double>>{{det_val}}); 
+                                    break;
+                        case 'r':   rank_val = rank_of(matrix);
+                                    operands.push(std::vector<std::vector<double>>{{static_cast<double>(rank_val)}});
+                                    break;
+                        case 's':   operands.push(get_simplest_stair_matrix(matrix));
+                                    break;
+                        case 't':   operands.push(transpose(matrix));
+                                    break;
+                        case 'i':   operands.push(inverse(matrix));
+                                    break;
+                    }
                     i = j - 1;
                 } else {
                     if (!operands.empty()) {
                         std::vector<std::vector<double>> matrix = operands.top();
                         operands.pop();
-                        double det_val = det(matrix);
-                        operands.push(std::vector<std::vector<double>>{{det_val}});
-                    }
-                }
-            } else if (s[i] == 'r') {
-                if (i + 1 < s.size() && s[i+1] == '(') {
-                    int j = i + 2;
-                    int cnt = 1;
-                    while (j < s.size() && cnt > 0) {
-                        if (s[j] == '(') cnt++;
-                        else if (s[j] == ')') cnt--;
-                        j++;
-                    }
-                    std::string sub_s = s.substr(i+2, j-i-3);
-                    std::vector<std::vector<double>> matrix = parse_and_calculate(sub_s, matrixs);
-                    int rank_val = rank_of(matrix);
-                    operands.push(std::vector<std::vector<double>>{{static_cast<double>(rank_val)}});
-                    i = j - 1;
-                } else {
-                    if (!operands.empty()) {
-                        std::vector<std::vector<double>> matrix = operands.top();
-                        operands.pop();
-                        int rank_val = rank_of(matrix);
-                        operands.push(std::vector<std::vector<double>>{{static_cast<double>(rank_val)}});
+
+                        double det_val = 0;
+                        int rank_val = 0;
+                        switch(s[i]){
+                            case 'd':   det_val = det(matrix); 
+                                        operands.push(std::vector<std::vector<double>>{{det_val}}); 
+                                        break;
+                            case 'r':   rank_val = rank_of(matrix);
+                                        operands.push(std::vector<std::vector<double>>{{static_cast<double>(rank_val)}});
+                                        break;
+                            case 's':   operands.push(get_simplest_stair_matrix(matrix));
+                                        break;
+                            case 't':   operands.push(transpose(matrix));
+                                        break;
+                            case 'i':   operands.push(inverse(matrix));
+                                        break;
+                        }
                     }
                 }
             } 
-            else if (s[i] == 's') {
-                if (i + 1 < s.size() && s[i+1] == '(') {
-                    int j = i + 2;
-                    int cnt = 1;
-                    while (j < s.size() && cnt > 0) {
-                        if (s[j] == '(') cnt++;
-                        else if (s[j] == ')') cnt--;
-                        j++;
-                    }
-                    std::string sub_s = s.substr(i+2, j-i-3);
-                    std::vector<std::vector<double>> matrix = parse_and_calculate(sub_s, matrixs);
-                    operands.push(get_simplest_stair_matrix(matrix));
-                    i = j - 1;
-                } else {
-                    if (!operands.empty()) {
-                        std::vector<std::vector<double>> matrix = operands.top();
-                        operands.pop();
-                        operands.push(get_simplest_stair_matrix(matrix));
-                    }
-                }
-            }
-            else if (s[i] == 't') {
-                if (i + 1 < s.size() && s[i+1] == '(') {
-                    int j = i + 2;
-                    int cnt = 1;
-                    while (j < s.size() && cnt > 0) {
-                        if (s[j] == '(') cnt++;
-                        else if (s[j] == ')') cnt--;
-                        j++;
-                    }
-                    std::string sub_s = s.substr(i+2, j-i-3);
-                    std::vector<std::vector<double>> matrix = parse_and_calculate(sub_s, matrixs);
-                    operands.push(transpose(matrix));
-                    i = j - 1;
-                } else {
-                    if (!operands.empty()) {
-                        std::vector<std::vector<double>> matrix = operands.top();
-                        operands.pop();
-                        operands.push(transpose(matrix));
-                    }
-                }
-            }
-            else if (s[i] == 'i') {
-                if (i + 1 < s.size() && s[i+1] == '(') {
-                    int j = i + 2;
-                    int cnt = 1;
-                    while (j < s.size() && cnt > 0) {
-                        if (s[j] == '(') cnt++;
-                        else if (s[j] == ')') cnt--;
-                        j++;
-                    }
-                    std::string sub_s = s.substr(i+2, j-i-3);
-                    std::vector<std::vector<double>> matrix = parse_and_calculate(sub_s, matrixs);
-                    operands.push(inverse(matrix));
-                    i = j - 1;
-                } else {
-                    if (!operands.empty()) {
-                        std::vector<std::vector<double>> matrix = operands.top();
-                        operands.pop();
-                        operands.push(inverse(matrix));
-                    }
-                }
-            }
 
             else if (s[i] == '(') {
                 operators.push(s[i]);
@@ -743,62 +702,74 @@ namespace matcalc{
     }
 
     void help(){
-
-
-
-
-
+        std::cout <<    ">>This calculator has several useful functions.\n";
+        std::cout <<    "  1.Input a single matrix: All letters from A-Z can be used to represent a matrix.\n";
+        std::cout <<    "    For example, just type 'A=1 2', and press enter, then the calculator will recognize that you're inputting matrix A.\n";
+        std::cout <<    "    In this case, '1 2' will be the first row of matrix A and after pressing enter, you can input the next row of matrix A.\n";
+        std::cout <<    "    Note that you can input a matrix of any size you want.\n";
+        std::cout <<    "    Just separate different elements by a white space. Press enter twice consecutively to end input.\n";
+        std::cout <<    "  2.Input multiple matrices at the same time: Just type 'inputs' to initiate inputting matrix A-Z in order.\n";
+        std::cout <<    "  3.Calculate any expression: Input any expression you want and the calculator will present the result.\n";
+        std::cout <<    "    The calculator supports the following functions: + - * ^n i() r() d() s() t()\n";
+        std::cout <<    "    i(): inverse, r(): rank, d(): determinant, s(): get row-reduced echelon, t(): transpose\n";
+        std::cout <<    "    You may need to add more parentheses to ensure the result is correct.(Known bug)\n";
+        std::cout <<    "    Here are some examples of valid inputs: d(A*B) A+B*C r(A*B*C)*C ...etc.\n";
+        std::cout <<    "    Note: to calculate the product of a number and a matrix, just input the number into a matrix and use that matrix to represent the number.\n";
+        std::cout <<    "  4. The 'ans': just use the symbol '~' to get the previous calculation result.\n";
+        std::cout <<    "  5. The '->' operator: eg. input 'A+B->A', and the result of A+B will be stored in A.\n";
 
     }
 
-    void parse_commands(const std::string& s, std::vector<std::vector<std::vector<double>>>& matrixs, bool& error, bool& input, bool& inputs, bool& move_on_to_calculate, bool& solve_equation_1, bool& solve_equation_2, bool& helps){
+    void parse_commands(const std::string& s, std::vector<std::vector<std::vector<double>>>& matrixs, int& command){
         //make sure to separate different functions by an empty line
-        if(s == "help") helps = true;  //"help"
+        if(s == "help") command = 7;  //"help"
         
         else if(s.substr(0,5) == "solve"){ //"solve(...)"
-            if(s[5] != '(') error = true;
-                else if(s.length() == 8) solve_equation_1 = true; //solve(A) mode
-                     else solve_equation_2 = true; //solve(Ax=B) mode
+            if(s[5] != '(') command = 1;
+                else if(s.length() == 8) command = 5; //solve(A) mode
+                     else command = 6; //solve(Ax=B) mode
         }
 
         else if(s.substr(0,6) == "inputs")  //"inputs"     initiate multiple matrixs input
-            inputs = true;
+            command = 3;
 
         else if(s[1] == '='){ // "A= 1 2 3 4"   initiate single matrix input
-            if(!(s[0] >= 'A' && s[0] <= 'Z')) error = true;
-            else input = true;
+            if(!(s[0] >= 'A' && s[0] <= 'Z')) command = 1;
+            else command = 2;
         }
 
 
         //This always stays at the end of parse_commands function, letting parse_and_calculate be the "default" option
-        else move_on_to_calculate = true; 
+        else command = 4;
     }
 
 
     void integrated_calculation(){
+        std::cout << ">>Tip: type 'help' to see how to use this calculator.\n";
         std::string s;
         std::vector<std::vector<std::vector<double>>> matrixs(27);
-        bool error = false, input = false, inputs = false, move_on_to_calculate = false, solve_equation_1 = false, solve_equation_2 = false, helps = false;
-        
+        //command: 1: error, 2: input, 3: inputs, 4: move_on_to_calculate, 5: solve_equation_1, 6: solve_equation_2, 7: helps
+        int command{};
+
         while(true){
-            error = false, input = false, inputs = false, move_on_to_calculate = false, solve_equation_1 = false, solve_equation_2 = false, helps = false;
+            command = 0;
             std::cout << ">>";
             std::getline(std::cin, s);
 
-            parse_commands(s, matrixs, error, input, inputs, move_on_to_calculate, solve_equation_1, solve_equation_2, helps);
-            if(error)                   std::cout << "Invalid Input." << '\n';
-            if(move_on_to_calculate)    print_matrix(parse_and_calculate(s, matrixs));
-            if(input)                   single_matrix_input(matrixs[s[0] - 'A'], s.substr(2, s.length() - 2));
-            if(inputs)                  input_matrix(matrixs);
-            if(solve_equation_1)        solve_equation_represented_as_an_enlarged_matrix(matrixs[s[6] - 'A']);
-            if(solve_equation_2)        solve_equation_classical_format(matrixs[s[6] - 'A'], matrixs[s[9] - 'A']);
-            if(helps)                   help();
+            parse_commands(s, matrixs, command);
+            switch(command){
+                case 1: std::cout << "Invalid Input." << '\n';                                      break;
+                case 2: single_matrix_input(matrixs[s[0] - 'A'], s.substr(2, s.length() - 2));      break;
+                case 3: input_matrix(matrixs);                                                      break;
+                case 4: print_matrix(parse_and_calculate(s, matrixs));                              break;
+                case 5: solve_equation_represented_as_an_enlarged_matrix(matrixs[s[6] - 'A']);      break;
+                case 6: solve_equation_classical_format(matrixs[s[6] - 'A'], matrixs[s[9] - 'A']);  break;
+                case 7: help();                                                                     break;
+            }
 
-            if(!input) std::cout << "\n";
+            if(command != 2) std::cout << "\n";
         }
     }
-
-
 
 }
 
